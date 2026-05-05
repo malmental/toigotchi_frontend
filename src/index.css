@@ -1,21 +1,34 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-secondary: #ec4899;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-
-  --color-bg-dark: #0f0f1a;
-  --color-bg-card: #1a1a2e;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a1a1aa;
-  --color-border: #27273a;
-
-  --font-family-sans: 'Inter', system-ui, sans-serif;
-  --font-family-display: 'Poppins', system-ui, sans-serif;
+  --color-primary: #645495;
+  --color-primary-dark: #544484;
+  --color-primary-container: #c8b6ff;
+  --color-secondary: #735476;
+  --color-secondary-container: #ffd6ff;
+  --color-tertiary: #526524;
+  --color-tertiary-container: #b2c97c;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-background: #fbf9f4;
+  --color-surface: #f0eee9;
+  --color-surface-container-low: #f5f3ee;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #eae8e3;
+  --color-surface-container-highest: #e4e2dd;
+  --color-on-surface: #1b1c19;
+  --color-on-surface-variant: #48454f;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #544484;
+  --color-on-secondary-container: #7a597c;
+  --color-on-tertiary-container: #425515;
+  --color-on-tertiary-fixed: #151f00;
+  --color-tertiary-fixed: #d4ec9b;
+  --color-tertiary-fixed-dim: #b9cf81;
+  --color-outline: #797580;
+  --color-outline-variant: #cac4d1;
+  --color-surface-dim: #dbdad5;
+  --color-tertiary-fixed-dim: #b9cf81;
 }
 
 @layer base {
@@ -25,25 +38,62 @@
 
   body {
     margin: 0;
-    font-family: var(--font-family-sans);
-    background-color: var(--color-bg-dark);
-    color: var(--color-text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: #fbf9f4;
+    color: #1b1c19;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    background-image: radial-gradient(circle at 2px 2px, #cac4d1 1px, transparent 0);
+    background-size: 24px 24px;
   }
 
-  #root {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
   }
 }
 
-@layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* Y2K Utility Classes */
+.y2k-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+}
+
+.y2k-shadow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+}
+
+.y2k-border {
+  border: 3px solid #1b1c19;
+}
+
+.y2k-inset-shadow {
+  box-shadow: inset 2px 2px 0px 0px rgba(0,0,0,1);
+}
+
+.y2k-button {
+  border: 3px solid #1b1c19;
+  box-shadow: 4px 4px 0px 0px #1b1c19;
+  transition: all 0.1s;
+}
+
+.y2k-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #1b1c19;
+}
+
+.y2k-input {
+  border: 3px solid #1b1c19;
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.y2k-window {
+  border: 3px solid #1b1c19;
+  box-shadow: 8px 8px 0px 0px #1b1c19;
+  background: white;
+}
+
+.retro-progress-segment {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.2) 2px, transparent 2px);
+  background-size: 8px 100%;
 }
