@@ -62,12 +62,13 @@ class ApiService {
     this.token = null
   }
 
-  async getPets(): Promise<Pet[]> {
-    return this.request<Pet[]>('/v1/pets')
-  }
-
   async getPet(id: number): Promise<{ data: Pet }> {
     return this.request<{ data: Pet }>(`/v1/pets/${id}`)
+  }
+
+  async getPets(): Promise<Pet[]> {
+    const response = await this.request<{ data: Pet[] }>('/v1/pets')
+    return response.data
   }
 
   async createPet(pet: { name: string; species: string }): Promise<{ data: Pet }> {
