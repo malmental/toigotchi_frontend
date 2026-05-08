@@ -39,6 +39,15 @@ export interface PetMemory {
   created_at: string
 }
 
+export interface PetQuota {
+  used: number
+  limit: number
+  remaining: number
+  resets_at: string | null
+  is_exhausted: boolean
+  window_start: string | null
+}
+
 export interface AuthResponse {
   user: User
   access_token: string
@@ -63,6 +72,7 @@ export interface ActionResponse {
   message: string
   effects: Record<string, number>
   pet: Pet
+  quota: PetQuota
 }
 
 export interface ApiError {

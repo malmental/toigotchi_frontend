@@ -136,7 +136,7 @@ function PetCard({ pet }: { pet: Pet }) {
 
 function EmptyState() {
   return (
-    <div className="y2k-border y2k-shadow" style={{
+    <div className="animate-fade-slide-in y2k-border y2k-shadow" style={{
       backgroundColor: '#ffffff',
       padding: '48px 24px',
       textAlign: 'center',
@@ -237,7 +237,7 @@ export function DashboardPage() {
 
       <main style={{ padding: '32px 16px', maxWidth: '1120px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
-          <div>
+          <div className="animate-fade-slide-in">
             <h2 style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: '32px',
@@ -250,7 +250,7 @@ export function DashboardPage() {
           </div>
           <Link
             to="/pets/new"
-            className="y2k-button"
+            className="y2k-button animate-fade-slide-in animate-fade-slide-in-delay-1"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -278,7 +278,7 @@ export function DashboardPage() {
         ) : pets.length === 0 ? (
           <EmptyState />
         ) : (
-          <div style={{
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '24px',
