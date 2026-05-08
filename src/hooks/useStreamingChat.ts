@@ -11,7 +11,7 @@ interface UseStreamingChatReturn {
   setMessage: (value: string) => void
   isStreaming: boolean
   fullResponse: string
-  sendMessage: (petId: number, token: string) => Promise<void>
+  sendMessage: (petId: number, message: string, token: string) => Promise<void>
   abort: () => void
 }
 
@@ -26,7 +26,7 @@ export function useStreamingChat({
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const sendMessage = useCallback(
-    async (petId: number, token: string) => {
+    async (petId: number, message: string, token: string) => {
       if (!message.trim() || isStreaming) return
 
       setIsStreaming(true)
@@ -75,13 +75,14 @@ export function useStreamingChat({
 
             if (!line) continue
 
-            if (line === '[DONE]') {
+            if (line === 'data: [DONE]' || line === '[DONE]') {
               onDone()
               break
             }
 
             try {
-              const data = JSON.parse(line)
+              const jsonLine = line.startsWith('data: ') ? line.slice(6) : line
+              const data = JSON.parse(jsonLine)
               if (data.chunk) {
                 onEachChunk(data.chunk)
               }
@@ -107,7 +108,7 @@ export function useStreamingChat({
         setMessage('')
       }
     },
-    [message, isStreaming, onChunk, onDone, onError]
+    [isStreaming, onChunk, onDone, onError]
   )
 
   const abort = useCallback(() => {

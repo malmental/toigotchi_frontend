@@ -5,6 +5,7 @@ import type {
   Pet,
   PetAction,
   PetMemory,
+  PetQuota,
   ActionResponse,
 } from '@/types'
 
@@ -37,7 +38,10 @@ class ApiService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Request failed' }))
-      throw new Error(error.message || `HTTP ${response.status}`)
+      const err = new Error(error.message || error.error || `HTTP ${response.status}`)
+      ;(err as any).retryAfter = response.headers.get('Retry-After')
+      ;(err as any).quota = error.quota
+      throw err
     }
 
     return response.json()
@@ -102,6 +106,10 @@ class ApiService {
 
   async getActionHistory(petId: number): Promise<{ data: PetAction[] }> {
     return this.request<{ data: PetAction[] }>(`/v1/pets/${petId}/actions`)
+  }
+
+  async getPetQuota(petId: number): Promise<PetQuota> {
+    return this.request<PetQuota>(`/v1/pets/${petId}/quota`)
   }
 
   async chat(petId: number, message: string): Promise<ChatResponse> {

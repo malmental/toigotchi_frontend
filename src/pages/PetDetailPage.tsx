@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useStreamingChat } from '@/hooks/useStreamingChat'
+import { usePetActionQuota } from '@/hooks/usePetActionQuota'
 import type { Pet } from '@/types'
 import { api } from '@/services/api'
 
@@ -79,6 +80,34 @@ export function PetDetailPage() {
 
   const { sendMessage } = useStreamingChat({ onChunk, onDone, onError })
 
+  const {
+    quota,
+    isExhausted: isQuotaExhausted,
+    remaining,
+    resetsAt,
+    refresh: refreshQuota,
+  } = usePetActionQuota({
+    petId: Number(id),
+    token,
+    enabled: !!token && !!id,
+  })
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message)
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+    toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 5000)
+  }, [])
+
+  useEffect(() => {
+    if (isQuotaExhausted && resetsAt) {
+      const minutes = Math.ceil((resetsAt.getTime() - Date.now()) / 60000)
+      showToast(`Action quota exhausted. Wait ${minutes}min to continue.`)
+    }
+  }, [isQuotaExhausted, resetsAt, showToast])
+
   useEffect(() => {
     if (!token) return
     api.setToken(token)
@@ -90,13 +119,22 @@ export function PetDetailPage() {
 
   const handleAction = async (actionType: string) => {
     if (!pet || !token || isActionLoading) return
+    if (isQuotaExhausted) {
+      const minutes = resetsAt ? Math.ceil((resetsAt.getTime() - Date.now()) / 60000) : 60
+      showToast(`Action quota exhausted. Wait ${minutes}min.`)
+      return
+    }
     setIsActionLoading(true)
     try {
       const response = await api.performAction(pet.id, actionType)
       setPet(response.pet)
       await loadPets()
-    } catch (err) {
+      await refreshQuota()
+    } catch (err: any) {
       console.error('Action failed:', err)
+      if (err.quota?.resets_at) {
+        showToast(`Action quota exhausted. Wait ${Math.ceil((new Date(err.quota.resets_at).getTime() - Date.now()) / 60000)}min.`)
+      }
     } finally {
       setIsActionLoading(false)
     }
@@ -106,7 +144,7 @@ export function PetDetailPage() {
     if (!pet || !token || !chatMessage.trim() || isChatStreaming) return
     setChatResponse('')
     setIsChatStreaming(true)
-    await sendMessage(pet.id, token)
+    await sendMessage(pet.id, chatMessage, token)
   }
 
   if (isLoading || !pet) {
@@ -206,7 +244,7 @@ export function PetDetailPage() {
       </header>
 
       <main style={{ padding: '24px 16px', maxWidth: '448px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
+        <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
           <div style={{
             width: '120px',
             height: '120px',
@@ -241,7 +279,7 @@ export function PetDetailPage() {
           </span>
         </div>
 
-        <div style={{ ...cardStyle, padding: '24px' }}>
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
           <h3 style={{
             fontSize: '12px',
             fontWeight: 700,
@@ -258,23 +296,35 @@ export function PetDetailPage() {
           <StatBar label="Cleanliness" value={pet.cleanliness} color="#526524" />
         </div>
 
-        <div style={{ ...cardStyle, padding: '24px' }}>
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: '#48454f',
-            marginBottom: '16px',
-          }}>
-            Actions
-          </h3>
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-2 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#48454f',
+              margin: 0,
+            }}>
+              Actions
+            </h3>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              color: isQuotaExhausted ? '#b22222' : '#526524',
+              textTransform: 'uppercase',
+            }}>
+              {isQuotaExhausted
+                ? `Wait ${resetsAt ? Math.ceil((resetsAt.getTime() - Date.now()) / 60000) : '...'}min`
+                : `${remaining}/3 left`}
+            </span>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {actionButtons.map(({ type, label, emoji }) => (
               <button
                 key={type}
                 onClick={() => handleAction(type)}
-                disabled={isActionLoading}
+                disabled={isActionLoading || isQuotaExhausted}
                 className="y2k-button"
                 style={{
                   display: 'flex',
@@ -287,8 +337,8 @@ export function PetDetailPage() {
                   fontWeight: 600,
                   textTransform: 'uppercase',
                   color: '#1b1c19',
-                  cursor: isActionLoading ? 'not-allowed' : 'pointer',
-                  opacity: isActionLoading ? 0.5 : 1,
+                  cursor: isActionLoading || isQuotaExhausted ? 'not-allowed' : 'pointer',
+                  opacity: (isActionLoading || isQuotaExhausted) ? 0.5 : 1,
                 }}
               >
                 <span style={{ fontSize: '24px' }}>{emoji}</span>
@@ -298,7 +348,7 @@ export function PetDetailPage() {
           </div>
         </div>
 
-        <div style={{ ...cardStyle, padding: '24px' }}>
+        <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '24px' }}>
           <h3 style={{
             fontSize: '12px',
             fontWeight: 700,
@@ -311,7 +361,7 @@ export function PetDetailPage() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {chatResponse && (
-              <div style={{ padding: '16px', backgroundColor: '#f5f3ee', border: '2px solid #1b1c19' }}>
+              <div className="animate-fade-in" style={{ padding: '16px', backgroundColor: '#f5f3ee', border: '2px solid #1b1c19' }}>
                 <div style={{ fontSize: '10px', color: '#48454f', textTransform: 'uppercase', marginBottom: '4px' }}>
                   {pet.name}://
                 </div>
@@ -358,6 +408,24 @@ export function PetDetailPage() {
           </div>
         </div>
       </main>
+
+      {toastMessage && (
+        <div className="animate-fade-in" style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          backgroundColor: '#1b1c19',
+          color: '#ffffff',
+          padding: '12px 16px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          fontWeight: 600,
+          zIndex: 1000,
+          boxShadow: '4px 4px 0px 0px #645495',
+        }}>
+          {toastMessage}
+        </div>
+      )}
     </div>
   )
 }

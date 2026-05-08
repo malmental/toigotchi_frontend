@@ -20,7 +20,7 @@ export function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '340px' }}>
-        <div style={{ marginBottom: '48px', textAlign: 'center' }}>
+        <div className="animate-fade-slide-in" style={{ marginBottom: '48px', textAlign: 'center' }}>
           <div style={{
             width: '80px',
             height: '80px',
@@ -59,7 +59,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        <div className="y2k-window" style={{ overflow: 'hidden' }}>
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 y2k-window" style={{ overflow: 'hidden' }}>
           <div style={{
             backgroundColor: '#645495',
             borderBottom: '3px solid #1b1c19',
@@ -87,6 +87,7 @@ export function LoginPage() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {error && (
                 <div
+                  className="animate-fade-in"
                   onClick={clearError}
                   style={{
                     padding: '12px',
@@ -206,7 +207,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginTop: '24px', textAlign: 'center' }}>
           <p style={{
             fontSize: '14px',
             fontWeight: 600,

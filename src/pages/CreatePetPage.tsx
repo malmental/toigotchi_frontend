@@ -80,7 +80,7 @@ export function CreatePetPage() {
       </header>
 
       <main style={{ paddingTop: '100px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '480px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '32px' }}>
+        <div className="animate-fade-slide-in" style={{ marginBottom: '32px' }}>
           <h2 style={{
             fontFamily: "'Space Grotesk', sans-serif",
             fontSize: '28px',
@@ -96,7 +96,7 @@ export function CreatePetPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '32px' }}>
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-1" style={{ marginBottom: '32px' }}>
             <label style={{
               display: 'block',
               fontSize: '12px',
@@ -140,7 +140,7 @@ export function CreatePetPage() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '32px' }}>
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginBottom: '32px' }}>
             <label style={{
               display: 'block',
               fontSize: '12px',
@@ -223,7 +223,7 @@ export function CreatePetPage() {
             </div>
           </div>
 
-          <div style={{
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-3" style={{
             backgroundColor: '#f5f3ee',
             border: '3px solid #1b1c19',
             padding: '16px',
