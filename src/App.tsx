@@ -18,6 +18,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth()
+
+  if (isAuthenticated) {
+    return <DashboardPage />
+  }
+
+  return <>{children}</>
+}
+
 function AppRoutes() {
   const router = createBrowserRouter([
     {
@@ -30,11 +40,11 @@ function AppRoutes() {
     },
     {
       path: '/login',
-      element: <LoginPage />,
+      element: <PublicRoute><LoginPage /></PublicRoute>,
     },
     {
       path: '/register',
-      element: <RegisterPage />,
+      element: <PublicRoute><RegisterPage /></PublicRoute>,
     },
     {
       path: '/dashboard',
