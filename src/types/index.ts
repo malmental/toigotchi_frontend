@@ -16,8 +16,23 @@ export interface Pet {
   cleanliness: number
   mood: string
   is_alive: boolean
+  last_visited_at?: string
+  last_decay_at?: string
   created_at: string
   updated_at: string
+}
+
+export interface DecayLog {
+  id: number
+  pet_id: number
+  hours_elapsed: number
+  changes: {
+    hunger?: number
+    energy?: number
+    cleanliness?: number
+    health?: number
+  }
+  created_at: string
 }
 
 export interface PetAction {
