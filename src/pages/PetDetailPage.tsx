@@ -3,9 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useStreamingChat } from '@/hooks/useStreamingChat'
 import { usePetActionQuota } from '@/hooks/usePetActionQuota'
+import { usePetDecayLog } from '@/hooks/usePetDecayLog'
+import { DecayNotification } from '@/components/DecayNotification'
 import type { Pet } from '@/types'
 import { api } from '@/services/api'
 
+/* Constants */
 const speciesEmojis: Record<string, string> = {
   blobcat: '🫧',
   foxkid: '🦊',
@@ -27,6 +30,7 @@ const cardStyle = {
   boxShadow: '4px 4px 0px 0px #1b1c19',
 }
 
+/* Stat Bar Component */
 function StatBar({ label, value, color }: { label: string; value: number; color: string }) {
   const percentage = Math.min(100, Math.max(0, value))
   return (
@@ -60,6 +64,7 @@ function StatBar({ label, value, color }: { label: string; value: number; color:
   )
 }
 
+/* Pet Detail Page */
 export function PetDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -71,6 +76,7 @@ export function PetDetailPage() {
   const [chatResponse, setChatResponse] = useState('')
   const [isChatStreaming, setIsChatStreaming] = useState(false)
 
+  /* Chat Callbacks */
   const onChunk = useCallback((chunk: string) => setChatResponse((prev) => prev + chunk), [])
   const onDone = useCallback(() => setIsChatStreaming(false), [])
   const onError = useCallback((error: string) => {
@@ -80,6 +86,7 @@ export function PetDetailPage() {
 
   const { sendMessage } = useStreamingChat({ onChunk, onDone, onError })
 
+  /* Quota Hook */
   const {
     quota,
     isExhausted: isQuotaExhausted,
@@ -92,6 +99,21 @@ export function PetDetailPage() {
     enabled: !!token && !!id,
   })
 
+  /* Decay Log Hook */
+  const {
+    totalChanges,
+    totalHoursAway,
+  } = usePetDecayLog({
+    petId: Number(id),
+    token,
+    enabled: !!token && !!id,
+  })
+
+  /* Decay Notification */
+  const [showDecayNotification, setShowDecayNotification] = useState(false)
+  const [hasShownDecayNotification, setHasShownDecayNotification] = useState(false)
+
+  /* Toast Notification */
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -101,6 +123,7 @@ export function PetDetailPage() {
     toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 5000)
   }, [])
 
+  /* Show Toast when Quota Exhausted */
   useEffect(() => {
     if (isQuotaExhausted && resetsAt) {
       const minutes = Math.ceil((resetsAt.getTime() - Date.now()) / 60000)
@@ -108,6 +131,17 @@ export function PetDetailPage() {
     }
   }, [isQuotaExhausted, resetsAt, showToast])
 
+  /* Show Decay Notification when returning after being away */
+  useEffect(() => {
+    if (!pet || totalHoursAway <= 0 || hasShownDecayNotification) return
+    const timer = setTimeout(() => {
+      setShowDecayNotification(true)
+      setHasShownDecayNotification(true)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [pet, totalHoursAway, hasShownDecayNotification])
+
+  /* Load Pet Data */
   useEffect(() => {
     if (!token) return
     api.setToken(token)
@@ -117,6 +151,7 @@ export function PetDetailPage() {
       .finally(() => setIsLoading(false))
   }, [token, id, navigate])
 
+  /* Handle Action */
   const handleAction = async (actionType: string) => {
     if (!pet || !token || isActionLoading) return
     if (isQuotaExhausted) {
@@ -140,6 +175,7 @@ export function PetDetailPage() {
     }
   }
 
+  /* Handle Chat */
   const handleChat = async () => {
     if (!pet || !token || !chatMessage.trim() || isChatStreaming) return
     setChatResponse('')
@@ -147,6 +183,7 @@ export function PetDetailPage() {
     await sendMessage(pet.id, chatMessage, token)
   }
 
+  /* Loading State */
   if (isLoading || !pet) {
     return (
       <div style={{
@@ -161,6 +198,7 @@ export function PetDetailPage() {
     )
   }
 
+  /* Dead Pet State */
   if (!pet.is_alive) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -199,6 +237,7 @@ export function PetDetailPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '24px' }}>
+      {/* Header */}
       <header style={{
         backgroundColor: '#C0C0C0',
         borderBottom: '2px solid #000',
@@ -243,7 +282,9 @@ export function PetDetailPage() {
         </div>
       </header>
 
+      {/* Main Content */}
       <main style={{ padding: '24px 16px', maxWidth: '448px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Pet Avatar Card */}
         <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
           <div style={{
             width: '120px',
@@ -279,6 +320,7 @@ export function PetDetailPage() {
           </span>
         </div>
 
+        {/* System Status Card */}
         <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
           <h3 style={{
             fontSize: '12px',
@@ -296,6 +338,7 @@ export function PetDetailPage() {
           <StatBar label="Cleanliness" value={pet.cleanliness} color="#526524" />
         </div>
 
+        {/* Actions Card */}
         <div className="animate-fade-slide-in animate-fade-slide-in-delay-2 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{
@@ -348,6 +391,7 @@ export function PetDetailPage() {
           </div>
         </div>
 
+        {/* Chat Card */}
         <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '24px' }}>
           <h3 style={{
             fontSize: '12px',
@@ -360,6 +404,7 @@ export function PetDetailPage() {
             Chat Protocol
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Chat Response */}
             {chatResponse && (
               <div className="animate-fade-in" style={{ padding: '16px', backgroundColor: '#f5f3ee', border: '2px solid #1b1c19' }}>
                 <div style={{ fontSize: '10px', color: '#48454f', textTransform: 'uppercase', marginBottom: '4px' }}>
@@ -368,6 +413,7 @@ export function PetDetailPage() {
                 <div style={{ color: '#1b1c19', whiteSpace: 'pre-wrap' }}>{chatResponse}</div>
               </div>
             )}
+            {/* Chat Input */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
@@ -409,6 +455,7 @@ export function PetDetailPage() {
         </div>
       </main>
 
+      {/* Toast Notification */}
       {toastMessage && (
         <div className="animate-fade-in" style={{
           position: 'fixed',
@@ -425,6 +472,16 @@ export function PetDetailPage() {
         }}>
           {toastMessage}
         </div>
+      )}
+
+      {/* Decay Notification */}
+      {showDecayNotification && pet && (
+        <DecayNotification
+          hoursAway={totalHoursAway}
+          changes={totalChanges}
+          petName={pet.name}
+          onDismiss={() => setShowDecayNotification(false)}
+        />
       )}
     </div>
   )
