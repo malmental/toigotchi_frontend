@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   ChatResponse,
+  DecayLog,
   LoginResponse,
   Pet,
   PetAction,
@@ -121,6 +122,10 @@ class ApiService {
 
   async getMemories(petId: number): Promise<{ data: PetMemory[] }> {
     return this.request<{ data: PetMemory[] }>(`/v1/pets/${petId}/memories`)
+  }
+
+  async getDecayLogs(petId: number): Promise<{ data: DecayLog[] }> {
+    return this.request<{ data: DecayLog[] }>(`/v1/pets/${petId}/decay-logs`)
   }
 }
 

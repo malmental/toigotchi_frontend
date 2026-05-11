@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Pet } from '@/types'
 
+/* Constants */
 const speciesEmojis: Record<string, string> = {
   blobcat: '🫧',
   foxkid: '🦊',
@@ -17,6 +18,7 @@ const moodColors: Record<string, { bg: string; text: string }> = {
   neutral: { bg: '#e4e2dd', text: '#1b1c19' },
 }
 
+/* Pet Card Component */
 function PetCard({ pet }: { pet: Pet }) {
   const mood = moodColors[pet.mood] || moodColors.neutral
 
@@ -41,6 +43,7 @@ function PetCard({ pet }: { pet: Pet }) {
         ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '4px 4px 0px 0px #1b1c19'
       }}
     >
+      {/* Pet Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{
           width: '64px',
@@ -76,6 +79,7 @@ function PetCard({ pet }: { pet: Pet }) {
         </div>
       </div>
 
+      {/* Stats Grid */}
       <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <div>
           <div style={{
@@ -134,6 +138,7 @@ function PetCard({ pet }: { pet: Pet }) {
   )
 }
 
+/* Empty State */
 function EmptyState() {
   return (
     <div className="animate-fade-slide-in y2k-border y2k-shadow" style={{
@@ -181,6 +186,7 @@ function EmptyState() {
   )
 }
 
+/* Dashboard Page */
 export function DashboardPage() {
   const { pets, loadPets, logout } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
@@ -191,6 +197,7 @@ export function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '80px' }}>
+      {/* Header */}
       <header style={{
         backgroundColor: '#C0C0C0',
         borderBottom: '2px solid #000',
@@ -235,7 +242,9 @@ export function DashboardPage() {
         </div>
       </header>
 
+      {/* Main Content */}
       <main style={{ padding: '32px 16px', maxWidth: '1120px', margin: '0 auto' }}>
+        {/* Page Title */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
           <div className="animate-fade-slide-in">
             <h2 style={{
@@ -271,6 +280,7 @@ export function DashboardPage() {
           </Link>
         </div>
 
+        {/* Pet Grid or Loading/Empty State */}
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '64px', color: '#48454f' }}>
             Loading...
