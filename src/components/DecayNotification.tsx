@@ -37,7 +37,7 @@ export function DecayNotification({ hoursAway, changes, petName, onDismiss }: De
     timeoutRef.current = setTimeout(() => {
       setVisible(false)
       setTimeout(onDismiss, 300)
-    }, 5000)
+    }, 15000)
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -67,7 +67,8 @@ export function DecayNotification({ hoursAway, changes, petName, onDismiss }: De
         top: '24px',
         left: '50%',
         transform: 'translateX(-50%)',
-        backgroundColor: '#1b1c19',
+        backgroundColor: 'rgba(27, 28, 25, 0.65)',
+        backdropFilter: 'blur(50px)',
         color: '#ffffff',
         padding: '12px 16px',
         borderRadius: '4px',
