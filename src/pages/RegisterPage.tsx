@@ -23,7 +23,8 @@ export function RegisterPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100%', maxWidth: '340px' }}>
+      <div style={{ width: '100', maxWidth: '340px' }}>
+        {/* Logo */}
         <div className="animate-fade-slide-in" style={{ marginBottom: '48px', textAlign: 'center' }}>
           <div style={{
             width: '80px',
@@ -39,6 +40,7 @@ export function RegisterPage() {
           }}>
             🫧
           </div>
+          {/* Title */}
           <h1 style={{
             fontFamily: "'Space Grotesk', sans-serif",
             fontSize: '40px',
@@ -50,6 +52,7 @@ export function RegisterPage() {
           }}>
             Toigotchi
           </h1>
+          {/* Tagline */}
           <p style={{
             fontFamily: "'Space Grotesk', sans-serif",
             fontSize: '12px',
@@ -63,7 +66,9 @@ export function RegisterPage() {
           </p>
         </div>
 
+        {/* Register Window */}
         <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 y2k-window" style={{ overflow: 'hidden' }}>
+          {/* Window Header */}
           <div style={{
             backgroundColor: '#645495',
             borderBottom: '3px solid #1b1c19',
@@ -81,14 +86,17 @@ export function RegisterPage() {
             }}>
               Register.exe
             </span>
+            {/* Window Controls */}
             <div style={{ display: 'flex', gap: '4px' }}>
               <div style={{ width: '16px', height: '16px', border: '1px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>_</div>
               <div style={{ width: '16px', height: '16px', border: '1px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>X</div>
             </div>
           </div>
 
+          {/* Register Form */}
           <div style={{ padding: '16px' }}>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Error Message */}
               {error && (
                 <div
                   className="animate-fade-in"
@@ -107,6 +115,7 @@ export function RegisterPage() {
                 </div>
               )}
 
+              {/* Name Field */}
               <div>
                 <label style={{
                   display: 'block',
@@ -138,6 +147,7 @@ export function RegisterPage() {
                 />
               </div>
 
+              {/* Email Field */}
               <div>
                 <label style={{
                   display: 'block',
@@ -169,6 +179,7 @@ export function RegisterPage() {
                 />
               </div>
 
+              {/* Password Field */}
               <div>
                 <label style={{
                   display: 'block',
@@ -201,6 +212,7 @@ export function RegisterPage() {
                 />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -225,6 +237,7 @@ export function RegisterPage() {
           </div>
         </div>
 
+        {/* Login Link */}
         <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginTop: '24px', textAlign: 'center' }}>
           <p style={{
             fontSize: '14px',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { api } from '@/services/api'
 
+/* Species Options */
 const speciesOptions = [
   { value: 'blobcat', emoji: '🫧', label: 'Blobcat', description: 'Calm & Floating' },
   { value: 'foxkid', emoji: '🦊', label: 'Foxkid', description: 'Energetic & Clever' },
@@ -35,6 +36,7 @@ export function CreatePetPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '120px' }}>
+      {/* Header */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -79,7 +81,9 @@ export function CreatePetPage() {
         </div>
       </header>
 
+      {/* Main Content */}
       <main style={{ paddingTop: '100px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '480px', margin: '0 auto' }}>
+        {/* Page Title */}
         <div className="animate-fade-slide-in" style={{ marginBottom: '32px' }}>
           <h2 style={{
             fontFamily: "'Space Grotesk', sans-serif",
@@ -95,7 +99,9 @@ export function CreatePetPage() {
           </p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
+          {/* Name Field */}
           <div className="animate-fade-slide-in animate-fade-slide-in-delay-1" style={{ marginBottom: '32px' }}>
             <label style={{
               display: 'block',
@@ -140,6 +146,7 @@ export function CreatePetPage() {
             </div>
           </div>
 
+          {/* Species Selection */}
           <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginBottom: '32px' }}>
             <label style={{
               display: 'block',
@@ -223,6 +230,7 @@ export function CreatePetPage() {
             </div>
           </div>
 
+          {/* Info Notice */}
           <div className="animate-fade-slide-in animate-fade-slide-in-delay-3" style={{
             backgroundColor: '#f5f3ee',
             border: '3px solid #1b1c19',
@@ -244,6 +252,7 @@ export function CreatePetPage() {
         </form>
       </main>
 
+      {/* Footer with Submit Button */}
       <footer style={{
         position: 'fixed',
         bottom: 0,
