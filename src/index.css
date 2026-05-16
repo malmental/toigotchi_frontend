@@ -1,34 +1,68 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #645495;
-  --color-primary-dark: #544484;
-  --color-primary-container: #c8b6ff;
-  --color-secondary: #735476;
-  --color-secondary-container: #ffd6ff;
-  --color-tertiary: #526524;
-  --color-tertiary-container: #b2c97c;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-background: #fbf9f4;
-  --color-surface: #f0eee9;
-  --color-surface-container-low: #f5f3ee;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #eae8e3;
-  --color-surface-container-highest: #e4e2dd;
-  --color-on-surface: #1b1c19;
-  --color-on-surface-variant: #48454f;
-  --color-on-primary: #ffffff;
-  --color-on-primary-container: #544484;
-  --color-on-secondary-container: #7a597c;
-  --color-on-tertiary-container: #425515;
-  --color-on-tertiary-fixed: #151f00;
-  --color-tertiary-fixed: #d4ec9b;
-  --color-tertiary-fixed-dim: #b9cf81;
-  --color-outline: #797580;
-  --color-outline-variant: #cac4d1;
-  --color-surface-dim: #dbdad5;
-  --color-tertiary-fixed-dim: #b9cf81;
+  /* Kawaii Palette - Soft pastel colors */
+  --color-primary: #9B8FC2;
+  --color-primary-dark: #7B6FA2;
+  --color-primary-container: #E6E6FA;
+  --color-secondary: #B894C8;
+  --color-secondary-container: #FFF0F5;
+  --color-tertiary: #7EB87E;
+  --color-tertiary-container: #98FB98;
+  --color-error: #D45656;
+  --color-error-container: #FFB5B5;
+  --color-background: #FDF6F0;
+  --color-surface: #FFFFFF;
+  --color-surface-container-low: #FFF9F5;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-high: #F5EFF5;
+  --color-surface-container-highest: #EBE5F0;
+  --color-on-surface: #6B5B7A;
+  --color-on-surface-variant: #8B7B9B;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-container: #7B6FA2;
+  --color-on-secondary-container: #9B5B8B;
+  --color-on-tertiary-container: #4A6B4A;
+  --color-on-tertiary-fixed: #2A4A2A;
+  --color-tertiary-fixed: #C8E8B8;
+  --color-tertiary-fixed-dim: #A8D898;
+  --color-outline: #C5B8D5;
+  --color-outline-variant: #E5DFF0;
+  --color-surface-dim: #F0E8F5;
+  --color-tertiary-fixed-dim: #A8D898;
+
+  /* Kawaii Accent Colors */
+  --color-pink: #FFB6C1;
+  --color-pink-light: #FFF0F5;
+  --color-lavender: #E6E6FA;
+  --color-mint: #98FB98;
+  --color-cream: #FDF6E3;
+
+  /* Dark mode colors (default light values) */
+  --bg-primary: #FBF5F0;
+  --bg-secondary: #FDF6E3;
+  --text-primary: #6B5B7A;
+  --text-secondary: #9B8FC2;
+  --border-color: #DDD6E8;
+  --card-bg: #FFFFFF;
+}
+
+:root {
+  --bg-primary: #FBF5F0;
+  --bg-secondary: #FDF6E3;
+  --text-primary: #6B5B7A;
+  --text-secondary: #9B8FC2;
+  --border-color: #DDD6E8;
+  --card-bg: #FFFFFF;
+}
+
+.dark {
+  --bg-primary: #1a1625;
+  --bg-secondary: #2d2640;
+  --text-primary: #E6E6FA;
+  --text-secondary: #DDD6E8;
+  --border-color: #4a4060;
+  --card-bg: #2d2640;
 }
 
 @layer base {
@@ -39,12 +73,13 @@
   body {
     margin: 0;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    background-color: #fbf9f4;
-    color: #1b1c19;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
-    background-image: radial-gradient(circle at 2px 2px, #cac4d1 1px, transparent 0);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle at 2px 2px, var(--border-color) 1px, transparent 0);
+    background-size: 28px 28px;
+    transition: background-color 0.4s ease, color 0.4s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -52,49 +87,96 @@
     font-weight: 600;
     line-height: 1.2;
   }
+
+  /* Smooth transition for all themed elements */
+  div, header, main, section, article, aside, footer, span, p, a, button, input, form {
+    transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+  }
 }
 
-/* Y2K Utility Classes */
+/* Kawaii Utility Classes */
+.kawaii-shadow {
+  box-shadow: 0 8px 24px rgba(155, 143, 194, 0.25);
+}
+
+.kawaii-shadow-lg {
+  box-shadow: 0 12px 40px rgba(155, 143, 194, 0.3);
+}
+
+.kawaii-border {
+  border: 2px solid #DDD6E8;
+  border-radius: 20px;
+}
+
+.kawaii-button {
+  border: none;
+  box-shadow: 0 6px 20px rgba(155, 143, 194, 0.35);
+  transition: all 0.2s ease;
+  border-radius: 20px;
+}
+
+.kawaii-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 10px rgba(155, 143, 194, 0.25);
+}
+
+.kawaii-input {
+  border: 2px solid #DDD6E8;
+  border-radius: 16px;
+  transition: all 0.2s;
+}
+
+.kawaii-card {
+  background: white;
+  border-radius: 24px;
+  border: 2px solid #DDD6E8;
+  box-shadow: 0 12px 40px rgba(155, 143, 194, 0.2);
+}
+
+/* Legacy Y2K Classes (for compatibility) */
 .y2k-shadow {
-  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.1);
 }
 
 .y2k-shadow-lg {
-  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+  box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.1);
 }
 
 .y2k-border {
-  border: 3px solid #1b1c19;
+  border: 2px solid #DDD6E8;
+  border-radius: 16px;
 }
 
 .y2k-inset-shadow {
-  box-shadow: inset 2px 2px 0px 0px rgba(0,0,0,1);
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05);
 }
 
 .y2k-button {
-  border: 3px solid #1b1c19;
-  box-shadow: 4px 4px 0px 0px #1b1c19;
-  transition: all 0.1s;
+  border: none;
+  box-shadow: 0 4px 12px rgba(155, 143, 194, 0.3);
+  transition: all 0.2s;
+  border-radius: 16px;
 }
 
 .y2k-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #1b1c19;
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px rgba(155, 143, 194, 0.2);
 }
 
 .y2k-input {
-  border: 3px solid #1b1c19;
-  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+  border: 2px solid #DDD6E8;
+  border-radius: 16px;
 }
 
 .y2k-window {
-  border: 3px solid #1b1c19;
-  box-shadow: 8px 8px 0px 0px #1b1c19;
+  border: 2px solid #DDD6E8;
+  box-shadow: 0 8px 30px rgba(155, 143, 194, 0.2);
   background: white;
+  border-radius: 24px;
 }
 
 .retro-progress-segment {
-  background-image: linear-gradient(90deg, rgba(255,255,255,0.2) 2px, transparent 2px);
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.3) 2px, transparent 2px);
   background-size: 8px 100%;
 }
 
@@ -102,7 +184,7 @@
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -118,7 +200,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -127,16 +209,16 @@
 }
 
 .animate-fade-slide-in {
-  animation: fadeSlideIn 0.4s ease-out forwards;
+  animation: fadeSlideIn 0.5s ease-out forwards;
   opacity: 0;
 }
 
-.animate-fade-slide-in-delay-1 { animation-delay: 100ms; }
-.animate-fade-slide-in-delay-2 { animation-delay: 200ms; }
-.animate-fade-slide-in-delay-3 { animation-delay: 300ms; }
+.animate-fade-slide-in-delay-1 { animation-delay: 150ms; }
+.animate-fade-slide-in-delay-2 { animation-delay: 300ms; }
+.animate-fade-slide-in-delay-3 { animation-delay: 450ms; }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
   opacity: 0;
 }
 
@@ -147,7 +229,7 @@
 
 /* Stagger delays for children */
 .stagger-children > * {
-  animation: fadeSlideIn 0.4s ease-out forwards;
+  animation: fadeSlideIn 0.5s ease-out forwards;
   opacity: 0;
 }
 

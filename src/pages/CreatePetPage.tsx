@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { useKawaiiColors } from '@/hooks/useKawaiiColors'
 import { api } from '@/services/api'
 
-/* Species Options */
 const speciesOptions = [
   { value: 'blobcat', emoji: '🫧', label: 'Blobcat', description: 'Calm & Floating' },
   { value: 'foxkid', emoji: '🦊', label: 'Foxkid', description: 'Energetic & Clever' },
@@ -11,6 +12,7 @@ const speciesOptions = [
 ]
 
 export function CreatePetPage() {
+  const colors = useKawaiiColors()
   const navigate = useNavigate()
   const { token, loadPets } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
@@ -35,175 +37,211 @@ export function CreatePetPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', paddingBottom: '120px' }}>
-      {/* Header */}
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: colors.background,
+      backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+      backgroundSize: '28px 28px',
+      paddingBottom: '100px',
+    }}>
       <header style={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         zIndex: 50,
-        padding: '8px',
+        backgroundColor: colors.headerBar,
+        borderBottom: `2px solid ${colors.softBorder}`,
       }}>
         <div style={{
-          backgroundColor: '#645495',
-          border: '3px solid #1b1c19',
-          boxShadow: '4px 4px 0px 0px #1b1c19',
-          padding: '8px 16px',
+          padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          maxWidth: '480px',
+          margin: '0 auto',
         }}>
           <button
             onClick={() => navigate('/')}
             style={{
               background: 'none',
               border: 'none',
-              color: 'white',
+              color: colors.softText,
               cursor: 'pointer',
               fontSize: '14px',
               fontFamily: "'Space Grotesk', sans-serif",
               fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
             }}
           >
-            ← Cancel
+            ← back
           </button>
           <h1 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: 600,
-            color: 'white',
-            textTransform: 'uppercase',
+            color: colors.softText,
           }}>
-            Create_Pet.exe
+            ✧ New Friend
           </h1>
-          <div style={{ width: '60px' }} />
+          <ThemeToggle />
         </div>
       </header>
 
-      {/* Main Content */}
-      <main style={{ paddingTop: '100px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '480px', margin: '0 auto' }}>
-        {/* Page Title */}
-        <div className="animate-fade-slide-in" style={{ marginBottom: '32px' }}>
+      <main style={{
+        paddingTop: '100px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        maxWidth: '480px',
+        margin: '0 auto',
+      }}>
+        <div className="animate-fade-slide-in" style={{ marginBottom: '32px', textAlign: 'center' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            backgroundColor: colors.softWhite,
+            borderRadius: '50%',
+            border: `3px solid ${colors.softBorder}`,
+            boxShadow: '0 8px 25px rgba(155, 143, 194, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 20px',
+            fontSize: '40px',
+          }}>
+            ✨
+          </div>
           <h2 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '28px',
+            fontSize: '26px',
             fontWeight: 700,
-            color: '#1b1c19',
+            color: colors.softText,
             marginBottom: '8px',
           }}>
-            Begin Your Journey
+            Create New Friend
           </h2>
-          <p style={{ color: '#48454f' }}>
-            Choose a companion to grow alongside you.
+          <p style={{ color: colors.softText, fontSize: '14px', opacity: 0.8 }}>
+            Choose a companion to grow alongside you
           </p>
         </div>
 
-        {/* Form */}
+        {error && (
+          <div className="animate-fade-in" style={{
+            padding: '14px',
+            borderRadius: '16px',
+            backgroundColor: '#FFB5B5',
+            color: '#8B4A4A',
+            fontSize: '13px',
+            fontWeight: 500,
+            textAlign: 'center',
+            marginBottom: '24px',
+            border: '2px solid #D45656',
+          }}>
+            ✧ {error} ✧
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
-          {/* Name Field */}
-          <div className="animate-fade-slide-in animate-fade-slide-in-delay-1" style={{ marginBottom: '32px' }}>
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-1" style={{ marginBottom: '28px' }}>
             <label style={{
               display: 'block',
               fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#1b1c19',
+              fontWeight: 600,
+              color: colors.softText,
               marginBottom: '8px',
               fontFamily: "'Space Grotesk', sans-serif",
             }}>
-              Companion Name
+              ✧ Friend Name
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="ENTER_NAME_HERE..."
+                placeholder="give them a name..."
                 required
                 maxLength={50}
-                className="y2k-inset-shadow"
                 style={{
                   width: '100%',
-                  padding: '16px',
-                  fontSize: '16px',
+                  padding: '16px 20px',
+                  fontSize: '15px',
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  backgroundColor: '#ffffff',
-                  border: '3px solid #1b1c19',
+                  backgroundColor: colors.softWhite,
+                  border: `2px solid ${colors.softBorder}`,
+                  borderRadius: '16px',
                   boxSizing: 'border-box',
+                  outline: 'none',
+                  transition: 'all 0.2s',
                 }}
+                onFocus={(e) => e.target.style.borderColor = colors.lavenderDark}
+                onBlur={(e) => e.target.style.borderColor = colors.softBorder}
               />
-              <div style={{
-                position: 'absolute',
-                right: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#48454f',
-              }}>
-                <span style={{ fontSize: '20px' }}>⌨</span>
-              </div>
             </div>
           </div>
 
-          {/* Species Selection */}
-          <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginBottom: '32px' }}>
+          <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginBottom: '28px' }}>
             <label style={{
               display: 'block',
               fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#1b1c19',
+              fontWeight: 600,
+              color: colors.softText,
               marginBottom: '12px',
               fontFamily: "'Space Grotesk', sans-serif",
             }}>
-              Select Species
+              ✧ Choose Species
             </label>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {speciesOptions.map(({ value, emoji, label, description }) => (
                 <div
                   key={value}
                   onClick={() => setFormData({ ...formData, species: value })}
-                  className="y2k-border y2k-shadow"
                   style={{
-                    backgroundColor: formData.species === value ? '#e8ddff' : '#ffffff',
-                    padding: '16px',
+                    backgroundColor: formData.species === value ? colors.pinkLight : colors.softWhite,
+                    padding: '16px 20px',
+                    borderRadius: '20px',
+                    border: `2px solid ${formData.species === value ? colors.lavenderDark : colors.softBorder}`,
                     cursor: 'pointer',
-                    transition: 'all 0.1s',
+                    transition: 'all 0.2s ease',
+                    boxShadow: formData.species === value
+                      ? '0 6px 20px rgba(155, 143, 194, 0.25)'
+                      : '0 4px 15px rgba(155, 143, 194, 0.1)',
                   }}
                 >
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '14px',
                   }}>
                     <div style={{
-                      width: '64px',
-                      height: '64px',
-                      backgroundColor: formData.species === value ? '#c8b6ff' : '#f5f3ee',
-                      border: '2px solid #1b1c19',
+                      width: '56px',
+                      height: '56px',
+                      backgroundColor: formData.species === value ? colors.lavender : colors.inputBg,
+                      borderRadius: '50%',
+                      border: `2px solid ${colors.softBorder}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '32px',
+                      fontSize: '28px',
                     }}>
                       {emoji}
                     </div>
                     <div>
                       <h3 style={{
                         fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: '18px',
+                        fontSize: '16px',
                         fontWeight: 600,
-                        color: '#1b1c19',
+                        color: colors.softText,
                         marginBottom: '4px',
                       }}>
                         {label}
                       </h3>
                       <p style={{
-                        fontSize: '14px',
-                        color: '#48454f',
+                        fontSize: '13px',
+                        color: colors.softText,
+                        opacity: 0.7,
                       }}>
                         {description}
                       </p>
@@ -211,15 +249,15 @@ export function CreatePetPage() {
                     {formData.species === value && (
                       <div style={{
                         marginLeft: 'auto',
-                        width: '32px',
-                        height: '32px',
-                        backgroundColor: '#645495',
-                        border: '2px solid #1b1c19',
+                        width: '28px',
+                        height: '28px',
+                        backgroundColor: colors.lavenderDark,
+                        borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
-                        fontSize: '18px',
+                        fontSize: '14px',
                       }}>
                         ✓
                       </div>
@@ -230,62 +268,51 @@ export function CreatePetPage() {
             </div>
           </div>
 
-          {/* Info Notice */}
           <div className="animate-fade-slide-in animate-fade-slide-in-delay-3" style={{
-            backgroundColor: '#f5f3ee',
-            border: '3px solid #1b1c19',
-            padding: '16px',
+            backgroundColor: colors.inputBg,
+            border: `2px solid ${colors.softBorder}`,
+            borderRadius: '16px',
+            padding: '14px 16px',
             marginBottom: '24px',
             display: 'flex',
             gap: '12px',
-            alignItems: 'flex-start',
+            alignItems: 'center',
           }}>
-            <span style={{ fontSize: '20px' }}>⚠</span>
+            <span style={{ fontSize: '18px' }}>💜</span>
             <p style={{
               fontSize: '12px',
-              color: '#48454f',
+              color: colors.softText,
               lineHeight: 1.5,
             }}>
-              Species choice affects your companion's initial personality and preferred self-care routines.
+              Each species has unique traits and preferences. Choose what resonates with you!
             </p>
           </div>
-        </form>
-      </main>
 
-      {/* Footer with Submit Button */}
-      <footer style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: '24px',
-        backgroundColor: '#f0eee9',
-        borderTop: '3px solid #1b1c19',
-      }}>
-        <div style={{ maxWidth: '480px', margin: '0 auto' }}>
           <button
             type="submit"
             onClick={handleSubmit}
             disabled={isLoading || !formData.name.trim()}
-            className="y2k-button"
             style={{
               width: '100%',
-              height: '64px',
-              backgroundColor: isLoading || !formData.name.trim() ? '#9ca3af' : '#645495',
+              height: '56px',
+              backgroundColor: isLoading || !formData.name.trim() ? colors.softBorder : colors.lavenderDark,
               color: 'white',
-              fontSize: '18px',
+              fontSize: '15px',
               fontWeight: 600,
-              textTransform: 'uppercase',
               fontFamily: "'Space Grotesk', sans-serif",
-              border: '3px solid #1b1c19',
-              boxShadow: '4px 4px 0px 0px #1b1c19',
+              border: 'none',
+              borderRadius: '20px',
+              boxShadow: isLoading || !formData.name.trim()
+                ? 'none'
+                : '0 6px 20px rgba(155, 143, 194, 0.35)',
               cursor: isLoading || !formData.name.trim() ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
             }}
           >
-            {isLoading ? 'Creating...' : 'Create_Pet.exe'}
+            {isLoading ? '✨ creating...' : '✨ create new friend'}
           </button>
-        </div>
-      </footer>
+        </form>
+      </main>
     </div>
   )
 }

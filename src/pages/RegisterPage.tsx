@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { useKawaiiColors } from '@/hooks/useKawaiiColors'
 
 export function RegisterPage() {
+  const colors = useKawaiiColors()
   const { register, error, clearError } = useAuth()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
@@ -22,96 +25,186 @@ export function RegisterPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100', maxWidth: '340px' }}>
-        {/* Logo */}
-        <div className="animate-fade-slide-in" style={{ marginBottom: '48px', textAlign: 'center' }}>
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: colors.background,
+      backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+      backgroundSize: '28px 28px',
+      padding: '48px 24px',
+      paddingTop: '80px',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      overflowY: 'auto',
+    }}>
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        padding: '12px 20px',
+        backgroundColor: colors.headerBg,
+        borderBottom: `2px solid ${colors.softBorder}`,
+        boxShadow: '0 4px 20px rgba(155, 143, 194, 0.1)',
+      }}>
+        <div style={{
+          backgroundColor: colors.headerBar,
+          borderRadius: '20px',
+          padding: '10px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            backgroundColor: '#c8b6ff',
-            border: '3px solid #1b1c19',
-            boxShadow: '6px 6px 0px 0px rgba(27,28,25,1)',
+            width: '32px',
+            height: '32px',
+            backgroundColor: colors.softWhite,
+            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 24px',
-            fontSize: '40px',
+            fontSize: '16px',
+            border: `2px solid ${colors.softBorder}`,
           }}>
             🫧
           </div>
-          {/* Title */}
+          <span style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: '14px',
+            fontWeight: 600,
+            color: colors.lavenderDark,
+            marginLeft: '10px',
+          }}>
+            Toigotchi
+          </span>
+          <ThemeToggle style={{ marginLeft: 'auto' }} />
+        </div>
+      </header>
+      <div style={{ width: '100%', maxWidth: '360px' }}>
+        {/* Kawaii Logo */}
+        <div className="animate-fade-slide-in" style={{ marginBottom: '40px', textAlign: 'center' }}>
+          <div style={{
+            width: '100px',
+            height: '100px',
+            backgroundColor: colors.softWhite,
+            borderRadius: '50%',
+            border: `4px solid ${colors.lavenderDark}`,
+            boxShadow: `0 8px 24px rgba(155, 143, 194, 0.3)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 20px',
+            position: 'relative',
+          }}>
+            <div style={{
+              position: 'absolute',
+              width: '16px',
+              height: '10px',
+              backgroundColor: colors.pink,
+              borderRadius: '50%',
+              top: '45%',
+              left: '20%',
+              opacity: 0.7,
+            }} />
+            <div style={{
+              position: 'absolute',
+              width: '16px',
+              height: '10px',
+              backgroundColor: colors.pink,
+              borderRadius: '50%',
+              top: '45%',
+              right: '20%',
+              opacity: 0.7,
+            }} />
+            <span style={{ fontSize: '48px' }}>🫧</span>
+          </div>
+
           <h1 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '40px',
+            fontSize: '36px',
             fontWeight: 700,
-            color: '#645495',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
+            color: colors.lavenderDark,
             marginBottom: '8px',
+            letterSpacing: '0.02em',
           }}>
             Toigotchi
           </h1>
-          {/* Tagline */}
+
           <p style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#48454f',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontStyle: 'italic',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: colors.softText,
+            letterSpacing: '0.05em',
           }}>
-            Registration Protocol
+            join the cozy family
           </p>
         </div>
 
-        {/* Register Window */}
-        <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 y2k-window" style={{ overflow: 'hidden' }}>
-          {/* Window Header */}
+        {/* Kawaii Card */}
+        <div
+          className="animate-fade-slide-in animate-fade-slide-in-delay-1"
+          style={{
+            backgroundColor: colors.softWhite,
+            borderRadius: '24px',
+            border: `2px solid ${colors.softBorder}`,
+            boxShadow: `0 12px 40px rgba(155, 143, 194, 0.2)`,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Card Header */}
           <div style={{
-            backgroundColor: '#645495',
-            borderBottom: '3px solid #1b1c19',
-            padding: '4px 8px',
+            backgroundColor: colors.pinkLight,
+            padding: '16px 20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            color: 'white',
+            justifyContent: 'center',
+            gap: '12px',
           }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: colors.softWhite,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              border: `2px solid ${colors.pink}`,
+            }}>
+              ✨
+            </div>
             <span style={{
               fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: colors.lavenderDark,
             }}>
-              Register.exe
+              Create Account
             </span>
-            {/* Window Controls */}
-            <div style={{ display: 'flex', gap: '4px' }}>
-              <div style={{ width: '16px', height: '16px', border: '1px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>_</div>
-              <div style={{ width: '16px', height: '16px', border: '1px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>X</div>
-            </div>
           </div>
 
-          {/* Register Form */}
-          <div style={{ padding: '16px' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Error Message */}
+          {/* Form */}
+          <div style={{ padding: '24px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {error && (
                 <div
                   className="animate-fade-in"
                   onClick={clearError}
                   style={{
-                    padding: '12px',
-                    borderRadius: '0',
-                    backgroundColor: '#ffdad6',
-                    border: '3px solid #1b1c19',
-                    color: '#ba1a1a',
-                    fontSize: '14px',
+                    padding: '14px',
+                    borderRadius: '16px',
+                    backgroundColor: '#FFB5B5',
+                    color: '#D45656',
+                    fontSize: '13px',
+                    fontWeight: 500,
                     cursor: 'pointer',
+                    textAlign: 'center',
+                    border: '2px solid #D45656',
                   }}
                 >
-                  {error}
+                  ✧ {error} ✧
                 </div>
               )}
 
@@ -121,29 +214,33 @@ export function RegisterPage() {
                   display: 'block',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#1b1c19',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
+                  color: colors.softText,
+                  marginBottom: '8px',
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}>
-                  User_Name
+                  ✿ Name
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="YOUR_NAME"
+                  placeholder="your cute name"
                   required
-                  className="y2k-input"
                   style={{
                     width: '100%',
-                    height: '48px',
+                    height: '52px',
                     padding: '0 16px',
-                    fontSize: '16px',
+                    fontSize: '15px',
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    backgroundColor: '#ffffff',
+                    backgroundColor: colors.inputBg,
+                    border: `2px solid ${colors.softBorder}`,
+                    borderRadius: '16px',
+                    outline: 'none',
+                    transition: 'all 0.2s',
                     boxSizing: 'border-box',
                   }}
+                  onFocus={(e) => e.target.style.borderColor = colors.lavenderDark}
+                  onBlur={(e) => e.target.style.borderColor = colors.softBorder}
                 />
               </div>
 
@@ -153,29 +250,33 @@ export function RegisterPage() {
                   display: 'block',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#1b1c19',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
+                  color: colors.softText,
+                  marginBottom: '8px',
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}>
-                  User_Email
+                  ✉ Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="USER@DOMAIN.COM"
+                  placeholder="your@email.com"
                   required
-                  className="y2k-input"
                   style={{
                     width: '100%',
-                    height: '48px',
+                    height: '52px',
                     padding: '0 16px',
-                    fontSize: '16px',
+                    fontSize: '15px',
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    backgroundColor: '#ffffff',
+                    backgroundColor: colors.inputBg,
+                    border: `2px solid ${colors.softBorder}`,
+                    borderRadius: '16px',
+                    outline: 'none',
+                    transition: 'all 0.2s',
                     boxSizing: 'border-box',
                   }}
+                  onFocus={(e) => e.target.style.borderColor = colors.lavenderDark}
+                  onBlur={(e) => e.target.style.borderColor = colors.softBorder}
                 />
               </div>
 
@@ -185,30 +286,34 @@ export function RegisterPage() {
                   display: 'block',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#1b1c19',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
+                  color: colors.softText,
+                  marginBottom: '8px',
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}>
-                  Access_Key
+                  🔐 Password
                 </label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="MIN 6 CHARS"
+                  placeholder="min 6 characters"
                   required
                   minLength={6}
-                  className="y2k-input"
                   style={{
                     width: '100%',
-                    height: '48px',
+                    height: '52px',
                     padding: '0 16px',
-                    fontSize: '16px',
+                    fontSize: '15px',
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    backgroundColor: '#ffffff',
+                    backgroundColor: colors.inputBg,
+                    border: `2px solid ${colors.softBorder}`,
+                    borderRadius: '16px',
+                    outline: 'none',
+                    transition: 'all 0.2s',
                     boxSizing: 'border-box',
                   }}
+                  onFocus={(e) => e.target.style.borderColor = colors.lavenderDark}
+                  onBlur={(e) => e.target.style.borderColor = colors.softBorder}
                 />
               </div>
 
@@ -216,22 +321,23 @@ export function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="y2k-button"
                 style={{
                   width: '100%',
-                  height: '48px',
-                  backgroundColor: '#645495',
-                  color: 'white',
-                  fontSize: '18px',
+                  height: '56px',
+                  backgroundColor: isLoading ? colors.softBorder : colors.lavenderDark,
+                  color: colors.softWhite,
+                  fontSize: '16px',
                   fontWeight: 600,
-                  textTransform: 'uppercase',
                   fontFamily: "'Space Grotesk', sans-serif",
-                  border: '3px solid #1b1c19',
+                  border: 'none',
+                  borderRadius: '20px',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.5 : 1,
+                  boxShadow: isLoading ? 'none' : `0 6px 20px rgba(155, 143, 194, 0.4)`,
+                  transition: 'all 0.2s',
+                  marginTop: '8px',
                 }}
               >
-                {isLoading ? 'Creating...' : 'Create Account'}
+                {isLoading ? '✨ creating...' : '✨ join toigotchi'}
               </button>
             </form>
           </div>
@@ -241,17 +347,36 @@ export function RegisterPage() {
         <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{ marginTop: '24px', textAlign: 'center' }}>
           <p style={{
             fontSize: '14px',
-            fontWeight: 600,
-            color: '#48454f',
-            textTransform: 'uppercase',
+            fontWeight: 500,
+            color: colors.softText,
             fontFamily: "'Space Grotesk', sans-serif",
           }}>
-            Already registered?{' '}
-            <Link to="/login" style={{ color: '#645495', fontWeight: 600 }}>
-              LOGIN
+            already a friend?{' '}
+            <Link
+              to="/login"
+              style={{
+                color: colors.lavenderDark,
+                fontWeight: 600,
+                textDecoration: 'none',
+                borderBottom: `2px dashed ${colors.pink}`,
+              }}
+            >
+              login here
             </Link>
           </p>
         </div>
+
+        {/* Decorative elements */}
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          fontSize: '24px',
+          opacity: 0.3,
+        }}>
+          ✧
+        </div>
+        <ThemeToggle style={{ position: 'fixed', top: '20px', right: '20px', opacity: 0.6 }} />
       </div>
     </div>
   )
