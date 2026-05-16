@@ -70,6 +70,7 @@ export interface AuthResponse {
 }
 
 export interface LoginResponse {
+  user: User
   access_token: string
   token_type: 'Bearer'
 }

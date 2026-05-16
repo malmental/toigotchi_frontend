@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { useKawaiiColors } from '@/hooks/useKawaiiColors'
 import type { Pet } from '@/types'
 
-/* Constants */
 const speciesEmojis: Record<string, string> = {
   blobcat: '🫧',
   foxkid: '🦊',
@@ -11,99 +12,113 @@ const speciesEmojis: Record<string, string> = {
 }
 
 const moodColors: Record<string, { bg: string; text: string }> = {
-  happy: { bg: '#b2c97c', text: '#151f00' },
-  angry: { bg: '#ffdad6', text: '#93000a' },
-  tired: { bg: '#ffe1b2', text: '#5c4300' },
-  dirty: { bg: '#ffd6ff', text: '#5a3c5d' },
-  neutral: { bg: '#e4e2dd', text: '#1b1c19' },
+  happy: { bg: '#C8E8B8', text: '#4A6B4A' },
+  angry: { bg: '#FFB5B5', text: '#8B4A4A' },
+  tired: { bg: '#FFE8C5', text: '#8B6B4A' },
+  dirty: { bg: '#F0D5F0', text: '#7B5B7B' },
+  neutral: { bg: '#E8E0F0', text: '#6B5B7A' },
 }
 
-/* Pet Card Component */
-function PetCard({ pet }: { pet: Pet }) {
+interface PetCardProps {
+  pet: Pet
+  colors: ReturnType<typeof useKawaiiColors>
+}
+
+function PetCard({ pet, colors }: PetCardProps) {
   const mood = moodColors[pet.mood] || moodColors.neutral
+  const moodBg = colors.inputBg
+  const moodText = colors.softText
 
   return (
     <Link
       to={`/pets/${pet.id}`}
-      className="y2k-border y2k-shadow"
       style={{
         display: 'block',
-        backgroundColor: '#ffffff',
-        padding: '24px',
-        transition: 'all 0.1s',
+        backgroundColor: colors.cardBg,
+        padding: '20px',
+        borderRadius: '20px',
+        border: `2px solid ${colors.softBorder}`,
+        boxShadow: '0 6px 20px rgba(155, 143, 194, 0.15)',
+        transition: 'all 0.2s ease',
         textDecoration: 'none',
         color: 'inherit',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.transform = 'translate(2px, 2px)'
-        ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '2px 2px 0px 0px #1b1c19'
+        const target = e.currentTarget as HTMLAnchorElement
+        target.style.transform = 'translateY(-4px)'
+        target.style.boxShadow = '0 12px 30px rgba(155, 143, 194, 0.25)'
+        target.style.borderColor = colors.lavenderDark
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.transform = 'none'
-        ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '4px 4px 0px 0px #1b1c19'
+        const target = e.currentTarget as HTMLAnchorElement
+        target.style.transform = 'none'
+        target.style.boxShadow = '0 6px 20px rgba(155, 143, 194, 0.15)'
+        target.style.borderColor = colors.softBorder
       }}
     >
-      {/* Pet Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
         <div style={{
-          width: '64px',
-          height: '64px',
-          backgroundColor: '#f5f3ee',
-          border: '2px solid #1b1c19',
+          width: '56px',
+          height: '56px',
+          backgroundColor: colors.lavenderDark,
+          borderRadius: '50%',
+          border: `2px solid ${colors.softBorder}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '32px',
+          fontSize: '28px',
         }}>
           {speciesEmojis[pet.species]}
         </div>
         <div>
           <h3 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '20px',
+            fontSize: '18px',
             fontWeight: 600,
-            color: '#1b1c19',
+            color: colors.softText,
             marginBottom: '4px',
           }}>
             {pet.name}
           </h3>
           <span style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: '#48454f',
+            padding: '4px 10px',
+            borderRadius: '12px',
+            backgroundColor: moodBg,
+            color: moodText,
+            textTransform: 'capitalize',
           }}>
-            {pet.mood}
+            ✧ {pet.mood}
           </span>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <div>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: '10px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '4px',
-            color: '#1b1c19',
+            fontWeight: 600,
+            marginBottom: '6px',
+            color: colors.softText,
           }}>
-            <span>Hunger</span>
+            <span>🍎 Hunger</span>
             <span>{pet.hunger}%</span>
           </div>
           <div style={{
-            height: '12px',
-            border: '2px solid #1b1c19',
-            backgroundColor: '#e4e2dd',
-            padding: '2px',
+            height: '10px',
+            borderRadius: '8px',
+            backgroundColor: colors.softBorder,
+            overflow: 'hidden',
           }}>
             <div style={{
               height: '100%',
               width: `${pet.hunger}%`,
-              backgroundColor: '#645495',
+              backgroundColor: colors.lavenderDark,
+              borderRadius: '8px',
+              transition: 'width 0.4s ease',
             }} />
           </div>
         </div>
@@ -112,24 +127,25 @@ function PetCard({ pet }: { pet: Pet }) {
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: '10px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '4px',
-            color: '#1b1c19',
+            fontWeight: 600,
+            marginBottom: '6px',
+            color: colors.softText,
           }}>
-            <span>Energy</span>
+            <span>⚡ Energy</span>
             <span>{pet.energy}%</span>
           </div>
           <div style={{
-            height: '12px',
-            border: '2px solid #1b1c19',
-            backgroundColor: '#e4e2dd',
-            padding: '2px',
+            height: '10px',
+            borderRadius: '8px',
+            backgroundColor: colors.softBorder,
+            overflow: 'hidden',
           }}>
             <div style={{
               height: '100%',
               width: `${pet.energy}%`,
-              backgroundColor: '#735476',
+              backgroundColor: colors.pink,
+              borderRadius: '8px',
+              transition: 'width 0.4s ease',
             }} />
           </div>
         </div>
@@ -138,57 +154,64 @@ function PetCard({ pet }: { pet: Pet }) {
   )
 }
 
-/* Empty State */
-function EmptyState() {
+interface EmptyStateProps {
+  colors: ReturnType<typeof useKawaiiColors>
+}
+
+function EmptyState({ colors }: EmptyStateProps) {
   return (
-    <div className="animate-fade-slide-in y2k-border y2k-shadow" style={{
-      backgroundColor: '#ffffff',
+    <div style={{
+      backgroundColor: colors.cardBg,
       padding: '48px 24px',
+      borderRadius: '24px',
+      border: `2px solid ${colors.softBorder}`,
+      boxShadow: '0 8px 30px rgba(155, 143, 194, 0.15)',
       textAlign: 'center',
     }}>
-      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🐾</div>
+      <div style={{ fontSize: '56px', marginBottom: '16px' }}>🐾</div>
       <h3 style={{
         fontFamily: "'Space Grotesk', sans-serif",
         fontSize: '24px',
         fontWeight: 600,
-        color: '#1b1c19',
+        color: colors.softText,
         marginBottom: '8px',
       }}>
-        No pets yet
+        No friends yet
       </h3>
       <p style={{
-        fontSize: '16px',
-        color: '#48454f',
+        fontSize: '14px',
+        color: colors.softText,
+        opacity: 0.8,
         marginBottom: '24px',
       }}>
-        Create your first companion to begin
+        Create your first companion to begin the adventure!
       </p>
       <Link
         to="/pets/new"
-        className="y2k-button"
         style={{
-          display: 'inline-block',
-          padding: '12px 24px',
-          backgroundColor: '#645495',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '14px 28px',
+          backgroundColor: colors.lavenderDark,
           color: 'white',
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: '14px',
           fontWeight: 600,
-          textTransform: 'uppercase',
           textDecoration: 'none',
-          border: '3px solid #1b1c19',
-          boxShadow: '4px 4px 0px 0px #1b1c19',
+          borderRadius: '20px',
+          boxShadow: '0 6px 20px rgba(155, 143, 194, 0.35)',
         }}
       >
-        + New Pet
+        ✧ Create First Friend
       </Link>
     </div>
   )
 }
 
-/* Dashboard Page */
 export function DashboardPage() {
-  const { pets, loadPets, logout } = useAuth()
+  const colors = useKawaiiColors()
+  const { pets, loadPets, logout, user } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -196,109 +219,150 @@ export function DashboardPage() {
   }, [loadPets])
 
   return (
-    <div style={{ minHeight: '100vh', paddingBottom: '80px' }}>
-      {/* Header */}
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: colors.background,
+      backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+      backgroundSize: '28px 28px',
+      paddingBottom: '80px',
+    }}>
       <header style={{
-        backgroundColor: '#C0C0C0',
-        borderBottom: '2px solid #000',
+        backgroundColor: colors.headerBg,
+        borderBottom: `2px solid ${colors.softBorder}`,
         position: 'sticky',
         top: 0,
         zIndex: 50,
+        boxShadow: '0 4px 20px rgba(155, 143, 194, 0.1)',
       }}>
         <div style={{
-          backgroundColor: '#645495',
-          padding: '8px 12px',
+          backgroundColor: colors.headerBar,
+          padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '2px solid #000',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px' }}>🐾</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              backgroundColor: colors.softWhite,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+              border: `2px solid ${colors.softBorder}`,
+            }}>
+              🫧
+            </div>
             <h1 style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: '16px',
               fontWeight: 600,
-              color: 'white',
+              color: colors.lavenderDark,
             }}>
-              Toigotchi.exe
+              Toigotchi
             </h1>
           </div>
           <button
             onClick={logout}
             style={{
-              backgroundColor: '#C0C0C0',
-              border: '2px solid #000',
-              padding: '4px 12px',
+              backgroundColor: colors.softWhite,
+              border: `2px solid ${colors.softBorder}`,
+              padding: '8px 16px',
               fontSize: '12px',
-              fontWeight: 700,
+              fontWeight: 600,
               fontFamily: "'Space Grotesk', sans-serif",
-              textTransform: 'uppercase',
+              color: colors.softText,
+              borderRadius: '16px',
               cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colors.pinkLight
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colors.softWhite
             }}
           >
-            Logout
+            ✧ Logout
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main style={{ padding: '32px 16px', maxWidth: '1120px', margin: '0 auto' }}>
-        {/* Page Title */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+      <main style={{ padding: '32px 20px', maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '32px',
+        }}>
           <div className="animate-fade-slide-in">
             <h2 style={{
               fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: 700,
-              color: '#1b1c19',
+              color: colors.softText,
+              marginBottom: '8px',
             }}>
-              Dashboard
+              Welcome back, {user?.name ?? 'friend'}!
             </h2>
-            <div style={{ height: '4px', width: '48px', backgroundColor: '#645495', marginTop: '4px' }} />
+            <div style={{
+              height: '4px',
+              width: '48px',
+              backgroundColor: colors.lavenderDark,
+              borderRadius: '4px',
+            }} />
           </div>
           <Link
             to="/pets/new"
-            className="y2k-button animate-fade-slide-in animate-fade-slide-in-delay-1"
+            className="animate-fade-slide-in animate-fade-slide-in-delay-1"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '8px 16px',
-              backgroundColor: '#e4e2dd',
-              fontSize: '14px',
+              padding: '12px 20px',
+              backgroundColor: colors.lavenderDark,
+              color: 'white',
+              fontSize: '13px',
               fontWeight: 600,
-              textTransform: 'uppercase',
+              fontFamily: "'Space Grotesk', sans-serif",
               textDecoration: 'none',
-              color: '#1b1c19',
-              border: '2px solid #000',
-              boxShadow: '4px 4px 0px 0px #000',
+              borderRadius: '20px',
+              boxShadow: '0 6px 20px rgba(155, 143, 194, 0.35)',
             }}
           >
-            <span style={{ fontSize: '20px' }}>+</span>
-            <span>New Pet</span>
+            <span style={{ fontSize: '18px' }}>✨</span>
+            <span>New Friend</span>
           </Link>
         </div>
 
-        {/* Pet Grid or Loading/Empty State */}
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '64px', color: '#48454f' }}>
-            Loading...
+          <div style={{
+            textAlign: 'center',
+            padding: '64px',
+            color: colors.softText,
+            fontSize: '14px',
+          }}>
+            ✧ loading...
           </div>
         ) : pets.length === 0 ? (
-          <EmptyState />
+          <EmptyState colors={colors} />
         ) : (
           <div className="animate-fade-slide-in animate-fade-slide-in-delay-2" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '24px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px',
           }}>
             {pets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
+              <PetCard key={pet.id} pet={pet} colors={colors} />
             ))}
           </div>
         )}
       </main>
+
+      <div style={{ position: 'fixed', bottom: '20px', left: '20px', fontSize: '20px', opacity: 0.3, pointerEvents: 'none' }}>✧</div>
+      <ThemeToggle style={{ position: 'fixed', top: '80px', right: '30px', opacity: 0.6 }} />
     </div>
   )
 }

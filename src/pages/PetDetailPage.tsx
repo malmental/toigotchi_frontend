@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { useKawaiiColors } from '@/hooks/useKawaiiColors'
 import { useStreamingChat } from '@/hooks/useStreamingChat'
 import { usePetActionQuota } from '@/hooks/usePetActionQuota'
 import { usePetDecayLog } from '@/hooks/usePetDecayLog'
@@ -8,7 +10,6 @@ import { DecayNotification } from '@/components/DecayNotification'
 import type { Pet } from '@/types'
 import { api } from '@/services/api'
 
-/* Constants */
 const speciesEmojis: Record<string, string> = {
   blobcat: '🫧',
   foxkid: '🦊',
@@ -24,48 +25,70 @@ const actionButtons = [
   { type: 'talk', label: 'Talk', emoji: '💬' },
 ]
 
-const cardStyle = {
-  backgroundColor: '#ffffff',
-  border: '3px solid #1b1c19',
-  boxShadow: '4px 4px 0px 0px #1b1c19',
+interface StatBarProps {
+  label: string
+  value: number
+  color: string
+  emoji: string
+  colors: ReturnType<typeof useKawaiiColors>
 }
 
-/* Stat Bar Component */
-function StatBar({ label, value, color }: { label: string; value: number; color: string }) {
+function StatBar({ label, value, color, emoji, colors }: StatBarProps) {
   const percentage = Math.min(100, Math.max(0, value))
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div style={{ marginBottom: '14px' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        fontSize: '12px',
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        marginBottom: '4px',
-        color: '#1b1c19',
+        fontSize: '11px',
+        fontWeight: 600,
+        marginBottom: '6px',
+        color: colors.softText,
       }}>
-        <span>{label}</span>
+        <span>{emoji} {label}</span>
         <span>{Math.round(value)}%</span>
       </div>
       <div style={{
-        height: '16px',
-        border: '2px solid #1b1c19',
-        backgroundColor: '#e4e2dd',
-        padding: '2px',
+        height: '12px',
+        borderRadius: '10px',
+        backgroundColor: colors.lavender,
+        overflow: 'hidden',
       }}>
         <div style={{
           height: '100%',
           width: `${percentage}%`,
           backgroundColor: color,
-          transition: 'width 0.5s',
+          borderRadius: '10px',
+          transition: 'width 0.5s ease',
         }} />
       </div>
     </div>
   )
 }
 
-/* Pet Detail Page */
+interface KawaiiCardProps {
+  children: React.ReactNode
+  style?: object
+  colors: ReturnType<typeof useKawaiiColors>
+}
+
+function KawaiiCard({ children, style, colors }: KawaiiCardProps) {
+  return (
+    <div style={{
+      backgroundColor: colors.softWhite,
+      borderRadius: '24px',
+      border: `2px solid ${colors.softBorder}`,
+      boxShadow: '0 8px 30px rgba(155, 143, 194, 0.15)',
+      padding: '24px',
+      ...style,
+    }}>
+      {children}
+    </div>
+  )
+}
+
 export function PetDetailPage() {
+  const colors = useKawaiiColors()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { token, loadPets } = useAuth()
@@ -76,7 +99,6 @@ export function PetDetailPage() {
   const [chatResponse, setChatResponse] = useState('')
   const [isChatStreaming, setIsChatStreaming] = useState(false)
 
-  /* Chat Callbacks */
   const onChunk = useCallback((chunk: string) => setChatResponse((prev) => prev + chunk), [])
   const onDone = useCallback(() => setIsChatStreaming(false), [])
   const onError = useCallback((error: string) => {
@@ -86,9 +108,7 @@ export function PetDetailPage() {
 
   const { sendMessage } = useStreamingChat({ onChunk, onDone, onError })
 
-  /* Quota Hook */
   const {
-    quota,
     isExhausted: isQuotaExhausted,
     remaining,
     resetsAt,
@@ -99,7 +119,6 @@ export function PetDetailPage() {
     enabled: !!token && !!id,
   })
 
-  /* Decay Log Hook */
   const {
     totalChanges,
     totalHoursAway,
@@ -109,11 +128,9 @@ export function PetDetailPage() {
     enabled: !!token && !!id,
   })
 
-  /* Decay Notification */
   const [showDecayNotification, setShowDecayNotification] = useState(false)
   const [hasShownDecayNotification, setHasShownDecayNotification] = useState(false)
 
-  /* Toast Notification */
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -123,15 +140,13 @@ export function PetDetailPage() {
     toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 5000)
   }, [])
 
-  /* Show Toast when Quota Exhausted */
   useEffect(() => {
     if (isQuotaExhausted && resetsAt) {
       const minutes = Math.ceil((resetsAt.getTime() - Date.now()) / 60000)
-      showToast(`Action quota exhausted. Wait ${minutes}min to continue.`)
+      showToast(`✧ Actions paused. Wait ${minutes}min to continue`)
     }
   }, [isQuotaExhausted, resetsAt, showToast])
 
-  /* Show Decay Notification when returning after being away */
   useEffect(() => {
     if (!pet || totalHoursAway <= 0 || hasShownDecayNotification) return
     const timer = setTimeout(() => {
@@ -141,7 +156,6 @@ export function PetDetailPage() {
     return () => clearTimeout(timer)
   }, [pet, totalHoursAway, hasShownDecayNotification])
 
-  /* Load Pet Data */
   useEffect(() => {
     if (!token) return
     api.setToken(token)
@@ -151,39 +165,39 @@ export function PetDetailPage() {
       .finally(() => setIsLoading(false))
   }, [token, id, navigate])
 
-  /* Handle Action */
   const handleAction = async (actionType: string) => {
     if (!pet || !token || isActionLoading) return
     if (isQuotaExhausted) {
       const minutes = resetsAt ? Math.ceil((resetsAt.getTime() - Date.now()) / 60000) : 60
-      showToast(`Action quota exhausted. Wait ${minutes}min.`)
+      showToast(`✧ Actions paused. Wait ${minutes}min`)
       return
     }
+    const payload = actionType === 'feed' ? { food: 'apple' } : {}
     setIsActionLoading(true)
     try {
-      const response = await api.performAction(pet.id, actionType)
+      const response = await api.performAction(pet.id, actionType, payload)
       setPet(response.pet)
       await loadPets()
       await refreshQuota()
     } catch (err: any) {
       console.error('Action failed:', err)
       if (err.quota?.resets_at) {
-        showToast(`Action quota exhausted. Wait ${Math.ceil((new Date(err.quota.resets_at).getTime() - Date.now()) / 60000)}min.`)
+        showToast(`✧ Actions paused. Wait ${Math.ceil((new Date(err.quota.resets_at).getTime() - Date.now()) / 60000)}min`)
       }
     } finally {
       setIsActionLoading(false)
     }
   }
 
-  /* Handle Chat */
   const handleChat = async () => {
     if (!pet || !token || !chatMessage.trim() || isChatStreaming) return
+    const messageToSend = chatMessage.trim()
+    setChatMessage('')
     setChatResponse('')
     setIsChatStreaming(true)
-    await sendMessage(pet.id, chatMessage, token)
+    await sendMessage(pet.id, messageToSend, token)
   }
 
-  /* Loading State */
   if (isLoading || !pet) {
     return (
       <div style={{
@@ -191,44 +205,66 @@ export function PetDetailPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#48454f',
+        color: colors.softText,
+        fontSize: '14px',
+        backgroundColor: colors.background,
+        backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+        backgroundSize: '28px 28px',
       }}>
-        Loading...
+        ✧ loading...
       </div>
     )
   }
 
-  /* Dead Pet State */
   if (!pet.is_alive) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-        <div style={{ ...cardStyle, padding: '48px', textAlign: 'center', maxWidth: '320px' }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px', filter: 'grayscale(100%)', opacity: 0.5 }}>💀</div>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        backgroundColor: colors.background,
+        backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+        backgroundSize: '28px 28px',
+      }}>
+        <div style={{
+          backgroundColor: colors.softWhite,
+          borderRadius: '24px',
+          border: `2px solid ${colors.softBorder}`,
+          boxShadow: '0 12px 40px rgba(155, 143, 194, 0.2)',
+          padding: '48px 32px',
+          textAlign: 'center',
+          maxWidth: '320px',
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px', filter: 'grayscale(100%)', opacity: 0.4 }}>💀</div>
           <h2 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '24px',
+            fontSize: '22px',
             fontWeight: 600,
-            color: '#1b1c19',
+            color: colors.softText,
             marginBottom: '8px',
           }}>
-            {pet.name} has passed away
+            {pet.name} has crossed the rainbow bridge
           </h2>
-          <p style={{ color: '#48454f', marginBottom: '24px' }}>
-            Your companion lived a happy life.
+          <p style={{ color: colors.softText, opacity: 0.7, marginBottom: '24px', fontSize: '14px' }}>
+            They lived a happy life filled with love ✧
           </p>
           <button
             onClick={() => navigate('/')}
-            className="y2k-button"
             style={{
-              padding: '12px 24px',
-              backgroundColor: '#645495',
+              padding: '14px 28px',
+              backgroundColor: colors.lavenderDark,
               color: 'white',
               fontWeight: 600,
-              textTransform: 'uppercase',
-              border: '3px solid #1b1c19',
+              fontFamily: "'Space Grotesk', sans-serif",
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              boxShadow: '0 6px 20px rgba(155, 143, 194, 0.35)',
             }}
           >
-            Back to Dashboard
+            ✧ Back to Friends
           </button>
         </div>
       </div>
@@ -236,29 +272,34 @@ export function PetDetailPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', paddingBottom: '24px' }}>
-      {/* Header */}
+    <div style={{
+      minHeight: '100vh',
+      paddingBottom: '24px',
+      backgroundColor: colors.background,
+      backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
+      backgroundSize: '28px 28px',
+    }}>
       <header style={{
-        backgroundColor: '#C0C0C0',
-        borderBottom: '2px solid #000',
+        backgroundColor: colors.headerBg,
+        borderBottom: `2px solid ${colors.softBorder}`,
         position: 'sticky',
         top: 0,
         zIndex: 50,
+        boxShadow: '0 4px 20px rgba(155, 143, 194, 0.1)',
       }}>
         <div style={{
-          backgroundColor: '#645495',
-          padding: '8px 12px',
+          backgroundColor: colors.headerBar,
+          padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '2px solid #000',
         }}>
           <button
             onClick={() => navigate('/')}
             style={{
               background: 'none',
               border: 'none',
-              color: 'white',
+              color: colors.lavenderDark,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -268,213 +309,268 @@ export function PetDetailPage() {
               fontWeight: 600,
             }}
           >
-            ← Back
+            ← back
           </button>
           <h1 style={{
             fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: 600,
-            color: 'white',
+            color: colors.lavenderDark,
           }}>
-            {pet.name}.exe
+            ✧ {pet.name}
           </h1>
-          <div style={{ width: '60px' }} />
+          <ThemeToggle />
         </div>
       </header>
 
-      {/* Main Content */}
-      <main style={{ padding: '24px 16px', maxWidth: '448px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {/* Pet Avatar Card */}
-        <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
-          <div style={{
-            width: '120px',
-            height: '120px',
-            backgroundColor: '#f5f3ee',
-            border: '3px solid #1b1c19',
-            margin: '0 auto 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '64px',
-          }}>
-            {speciesEmojis[pet.species]}
-          </div>
-          <h2 style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '28px',
-            fontWeight: 700,
-            color: '#1b1c19',
-            marginBottom: '4px',
-            textTransform: 'uppercase',
-          }}>
-            {pet.name}
-          </h2>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            color: '#48454f',
-            letterSpacing: '0.1em',
-          }}>
-            {pet.mood}
-          </span>
-        </div>
-
-        {/* System Status Card */}
-        <div className="animate-fade-slide-in animate-fade-slide-in-delay-1 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: '#48454f',
-            marginBottom: '16px',
-          }}>
-            System Status
-          </h3>
-          <StatBar label="Health" value={pet.health} color="#b2c97c" />
-          <StatBar label="Energy" value={pet.energy} color="#735476" />
-          <StatBar label="Hunger" value={pet.hunger} color="#645495" />
-          <StatBar label="Cleanliness" value={pet.cleanliness} color="#526524" />
-        </div>
-
-        {/* Actions Card */}
-        <div className="animate-fade-slide-in animate-fade-slide-in-delay-2 stagger-children" style={{ ...cardStyle, padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#48454f',
-              margin: 0,
+      <main style={{
+        padding: '24px 16px',
+        maxWidth: '480px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      }}>
+        <div className="animate-fade-slide-in">
+          <KawaiiCard colors={colors} style={{ textAlign: 'center', padding: '32px 24px' }}>
+            <div style={{
+              width: '100px',
+              height: '100px',
+              backgroundColor: colors.lavender,
+              borderRadius: '50%',
+              border: `3px solid ${colors.softBorder}`,
+              boxShadow: '0 8px 25px rgba(155, 143, 194, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              fontSize: '52px',
+              position: 'relative',
             }}>
-              Actions
-            </h3>
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: isQuotaExhausted ? '#b22222' : '#526524',
-              textTransform: 'uppercase',
-            }}>
-              {isQuotaExhausted
-                ? `Wait ${resetsAt ? Math.ceil((resetsAt.getTime() - Date.now()) / 60000) : '...'}min`
-                : `${remaining}/3 left`}
-            </span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-            {actionButtons.map(({ type, label, emoji }) => (
-              <button
-                key={type}
-                onClick={() => handleAction(type)}
-                disabled={isActionLoading || isQuotaExhausted}
-                className="y2k-button"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '16px 8px',
-                  backgroundColor: '#f5f3ee',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: '#1b1c19',
-                  cursor: isActionLoading || isQuotaExhausted ? 'not-allowed' : 'pointer',
-                  opacity: (isActionLoading || isQuotaExhausted) ? 0.5 : 1,
-                }}
-              >
-                <span style={{ fontSize: '24px' }}>{emoji}</span>
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Chat Card */}
-        <div className="animate-fade-slide-in" style={{ ...cardStyle, padding: '24px' }}>
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: '#48454f',
-            marginBottom: '16px',
-          }}>
-            Chat Protocol
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {/* Chat Response */}
-            {chatResponse && (
-              <div className="animate-fade-in" style={{ padding: '16px', backgroundColor: '#f5f3ee', border: '2px solid #1b1c19' }}>
-                <div style={{ fontSize: '10px', color: '#48454f', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  {pet.name}://
-                </div>
-                <div style={{ color: '#1b1c19', whiteSpace: 'pre-wrap' }}>{chatResponse}</div>
-              </div>
-            )}
-            {/* Chat Input */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !isChatStreaming && handleChat()}
-                placeholder={`Talk to ${pet.name}...`}
-                disabled={isChatStreaming}
-                className="y2k-input"
-                style={{
-                  flex: 1,
-                  height: '48px',
-                  padding: '0 16px',
-                  fontSize: '14px',
-                  backgroundColor: '#ffffff',
-                  boxSizing: 'border-box',
-                }}
-              />
-              <button
-                onClick={handleChat}
-                disabled={isChatStreaming}
-                className="y2k-button"
-                style={{
-                  padding: '0 16px',
-                  height: '48px',
-                  backgroundColor: '#645495',
-                  color: 'white',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  border: '3px solid #1b1c19',
-                  cursor: isChatStreaming ? 'not-allowed' : 'pointer',
-                  opacity: isChatStreaming ? 0.5 : 1,
-                }}
-              >
-                {isChatStreaming ? '...' : 'Send'}
-              </button>
+              <div style={{
+                position: 'absolute',
+                width: '14px',
+                height: '8px',
+                backgroundColor: colors.pink,
+                borderRadius: '50%',
+                top: '45%',
+                left: '18%',
+                opacity: 0.6,
+              }} />
+              <div style={{
+                position: 'absolute',
+                width: '14px',
+                height: '8px',
+                backgroundColor: colors.pink,
+                borderRadius: '50%',
+                top: '45%',
+                right: '18%',
+                opacity: 0.6,
+              }} />
+              {speciesEmojis[pet.species]}
             </div>
-          </div>
+            <h2 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '26px',
+              fontWeight: 700,
+              color: colors.softText,
+              marginBottom: '8px',
+            }}>
+              {pet.name}
+            </h2>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              padding: '6px 14px',
+              borderRadius: '16px',
+              backgroundColor: colors.pinkLight,
+              color: colors.lavenderDark,
+            }}>
+              ✧ {pet.mood}
+            </span>
+          </KawaiiCard>
+        </div>
+
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-1">
+          <KawaiiCard colors={colors}>
+            <h3 style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: colors.softText,
+              marginBottom: '16px',
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}>
+              ✧ Chat with {pet.name}
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {chatResponse && (
+                <div className="animate-fade-in" style={{
+                  padding: '14px 16px',
+                  backgroundColor: colors.lavender,
+                  borderRadius: '16px',
+                  border: `2px solid ${colors.softBorder}`,
+                }}>
+                  <div style={{ fontSize: '10px', color: colors.lavenderDark, marginBottom: '4px', fontWeight: 600 }}>
+                    {pet.name} says:
+                  </div>
+                  <div style={{ color: colors.lavenderDark, whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: 1.5 }}>{chatResponse}</div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                  type="text"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !isChatStreaming && handleChat()}
+                  placeholder={`Say something to ${pet.name}...`}
+                  disabled={isChatStreaming}
+                  style={{
+                    flex: 1,
+                    height: '48px',
+                    padding: '0 16px',
+                    fontSize: '14px',
+                    backgroundColor: colors.inputBg,
+                    border: `2px solid ${colors.softBorder}`,
+                    borderRadius: '16px',
+                    outline: 'none',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    transition: 'all 0.2s',
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = colors.lavenderDark}
+                  onBlur={(e) => e.target.style.borderColor = colors.softBorder}
+                />
+                <button
+                  onClick={handleChat}
+                  disabled={isChatStreaming}
+                  style={{
+                    padding: '0 18px',
+                    height: '48px',
+                    backgroundColor: colors.lavenderDark,
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    border: 'none',
+                    borderRadius: '16px',
+                    cursor: isChatStreaming ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 15px rgba(155, 143, 194, 0.3)',
+                    opacity: isChatStreaming ? 0.6 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {isChatStreaming ? '...' : '✨'}
+                </button>
+              </div>
+            </div>
+          </KawaiiCard>
+        </div>
+
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-2">
+          <KawaiiCard colors={colors}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: colors.softText,
+                margin: 0,
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}>
+                ✧ Actions
+              </h3>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: isQuotaExhausted ? '#D45656' : colors.lavenderDark,
+                padding: '4px 10px',
+                borderRadius: '12px',
+                backgroundColor: isQuotaExhausted ? '#FFB5B5' : colors.pinkLight,
+              }}>
+                {isQuotaExhausted
+                  ? `wait ${resetsAt ? Math.ceil((resetsAt.getTime() - Date.now()) / 60000) : '...'}min`
+                  : `${remaining}/3 left`}
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+              {actionButtons.map(({ type, label, emoji }) => (
+                <button
+                  key={type}
+                  onClick={() => handleAction(type)}
+                  disabled={isActionLoading || isQuotaExhausted}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '14px 8px',
+                    backgroundColor: colors.inputBg,
+                    border: `2px solid ${colors.softBorder}`,
+                    borderRadius: '16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: colors.softText,
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    cursor: isActionLoading || isQuotaExhausted ? 'not-allowed' : 'pointer',
+                    opacity: (isActionLoading || isQuotaExhausted) ? 0.5 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActionLoading && !isQuotaExhausted) {
+                      e.currentTarget.style.backgroundColor = colors.pinkLight
+                      e.currentTarget.style.borderColor = colors.lavenderDark
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.inputBg
+                    e.currentTarget.style.borderColor = colors.softBorder
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>{emoji}</span>
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </KawaiiCard>
+        </div>
+
+        <div className="animate-fade-slide-in animate-fade-slide-in-delay-3">
+          <KawaiiCard colors={colors}>
+            <h3 style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: colors.softText,
+              marginBottom: '16px',
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}>
+              ✧ Status
+            </h3>
+            <StatBar label="Health" value={pet.health} color={colors.mint} emoji="💖" colors={colors} />
+            <StatBar label="Energy" value={pet.energy} color={colors.pink} emoji="⚡" colors={colors} />
+            <StatBar label="Hunger" value={pet.hunger} color={colors.lavenderDark} emoji="🍎" colors={colors} />
+            <StatBar label="Clean" value={pet.cleanliness} color="#7EB87E" emoji="✨" colors={colors} />
+          </KawaiiCard>
         </div>
       </main>
 
-      {/* Toast Notification */}
       {toastMessage && (
         <div className="animate-fade-in" style={{
           position: 'fixed',
           bottom: '24px',
-          right: '24px',
-          backgroundColor: '#1b1c19',
-          color: '#ffffff',
-          padding: '12px 16px',
-          borderRadius: '4px',
-          fontSize: '12px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: colors.softWhite,
+          color: colors.softText,
+          padding: '12px 20px',
+          borderRadius: '20px',
+          fontSize: '13px',
           fontWeight: 600,
           zIndex: 1000,
-          boxShadow: '4px 4px 0px 0px #645495',
+          boxShadow: '0 8px 30px rgba(155, 143, 194, 0.3)',
+          border: `2px solid ${colors.softBorder}`,
         }}>
           {toastMessage}
         </div>
       )}
 
-      {/* Decay Notification */}
       {showDecayNotification && pet && (
         <DecayNotification
           hoursAway={totalHoursAway}

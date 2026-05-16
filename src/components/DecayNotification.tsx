@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 
+const colors = {
+  pink: '#FFB6C1',
+  lavender: '#E6E6FA',
+  lavenderDark: '#9B8FC2',
+  mint: '#98FB98',
+  cream: '#FDF6E3',
+  softWhite: '#FFFFFF',
+  softText: '#6B5B7A',
+  errorPink: '#FFB5B5',
+  errorRed: '#D45656',
+}
+
 interface DecayNotificationProps {
   hoursAway: number
   changes: {
@@ -36,8 +48,8 @@ export function DecayNotification({ hoursAway, changes, petName, onDismiss }: De
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       setVisible(false)
-      setTimeout(onDismiss, 300)
-    }, 15000)
+      setTimeout(onDismiss, 400)
+    }, 12000)
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -47,14 +59,14 @@ export function DecayNotification({ hoursAway, changes, petName, onDismiss }: De
   const handleDismiss = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     setVisible(false)
-    setTimeout(onDismiss, 300)
+    setTimeout(onDismiss, 400)
   }
 
   const changeItems = [
-    formatChange(changes.hunger, 'Hunger'),
-    formatChange(changes.energy, 'Energy'),
-    formatChange(changes.cleanliness, 'Cleanliness'),
-    formatChange(changes.health, 'Health'),
+    formatChange(changes.hunger, '🍖 Hunger'),
+    formatChange(changes.energy, '⚡ Energy'),
+    formatChange(changes.cleanliness, '🛁 Clean'),
+    formatChange(changes.health, '💗 Health'),
   ].filter(Boolean)
 
   if (!visible) return null
@@ -64,86 +76,141 @@ export function DecayNotification({ hoursAway, changes, petName, onDismiss }: De
       className="animate-fade-in"
       style={{
         position: 'fixed',
-        top: '24px',
+        bottom: '24px',
         left: '50%',
         transform: 'translateX(-50%)',
-        backgroundColor: 'rgba(27, 28, 25, 0.65)',
-        backdropFilter: 'blur(50px)',
-        color: '#ffffff',
-        padding: '12px 16px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        fontWeight: 600,
+        backgroundColor: colors.softWhite,
+        color: colors.softText,
+        padding: '0',
+        borderRadius: '24px',
+        fontSize: '13px',
+        fontWeight: 500,
         zIndex: 1000,
-        boxShadow: '4px 4px 0px 0px #645495',
-        border: '3px solid #1b1c19',
-        maxWidth: '320px',
+        boxShadow: '0 12px 40px rgba(155, 143, 194, 0.35)',
+        border: `3px solid ${colors.lavender}`,
+        maxWidth: '340px',
         width: '90%',
+        overflow: 'hidden',
       }}
     >
-      {/* Header */}
+      {/* Header Banner */}
       <div style={{
+        backgroundColor: colors.lavender,
+        padding: '14px 16px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '8px',
+        alignItems: 'center',
       }}>
-        <div>
-          <div style={{
-            fontSize: '10px',
-            color: '#c8b6ff',
-            textTransform: 'uppercase',
-            marginBottom: '2px',
-          }}>
-            Welcome Back
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: '#ffffff',
-          }}>
-            {petName} missed you!
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>🌸</span>
+          <div>
+            <div style={{
+              fontSize: '10px',
+              color: colors.lavenderDark,
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              marginBottom: '2px',
+            }}>
+              Welcome Back!
+            </div>
+            <div style={{
+              fontSize: '15px',
+              color: colors.softText,
+              fontWeight: 600,
+            }}>
+              {petName} missed you!
+            </div>
           </div>
         </div>
         <button
           onClick={handleDismiss}
           style={{
-            background: 'none',
-            border: 'none',
-            color: '#ffffff',
+            backgroundColor: colors.cream,
+            border: `2px solid ${colors.lavender}`,
+            borderRadius: '50%',
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: colors.softText,
             cursor: 'pointer',
-            fontSize: '16px',
-            padding: '0',
-            lineHeight: 1,
+            fontSize: '12px',
+            transition: 'all 0.2s',
           }}
         >
           ✕
         </button>
       </div>
 
-      {/* Time Away */}
-      <div style={{
-        fontSize: '11px',
-        color: '#c0c0c0',
-        marginBottom: '8px',
-      }}>
-        You were away for {formatTime(hoursAway)}
-      </div>
-
-      {/* Stats Lost */}
-      {changeItems.length > 0 && (
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        {/* Time Away */}
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          padding: '8px',
-          fontSize: '11px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: changeItems.length > 0 ? '14px' : 0,
+          color: colors.softText,
+          fontSize: '13px',
         }}>
-          <div style={{ color: '#ffdad6', marginBottom: '4px' }}>Stats decreased:</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {changeItems.map((item, i) => (
-              <span key={i} style={{ color: '#ffdad6' }}>{item}</span>
-            ))}
-          </div>
+          <span style={{ opacity: 0.6 }}>🕐</span>
+          <span>You were away for <strong>{formatTime(hoursAway)}</strong></span>
         </div>
-      )}
+
+        {/* Stats Lost */}
+        {changeItems.length > 0 && (
+          <div style={{
+            backgroundColor: colors.cream,
+            borderRadius: '16px',
+            padding: '12px 14px',
+          }}>
+            <div style={{
+              color: colors.errorRed,
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.03em',
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+              <span>📉</span> Stats decreased
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {changeItems.map((item, i) => (
+                <span
+                  key={i}
+                  style={{
+                    backgroundColor: colors.softWhite,
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: colors.errorRed,
+                    border: `1px solid ${colors.errorPink}`,
+                  }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Encouragement */}
+        <div style={{
+          marginTop: '14px',
+          textAlign: 'center',
+          fontSize: '12px',
+          color: colors.lavenderDark,
+          fontWeight: 600,
+        }}>
+          ✧ take good care of {petName}! ✧
+        </div>
+      </div>
     </div>
   )
 }

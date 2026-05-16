@@ -18,7 +18,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem('user')
+    return stored ? JSON.parse(stored) : null
+  })
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token')
   })
@@ -31,9 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null)
       const response = await api.login(email, password)
+      setUser(response.user)
       setToken(response.access_token)
       api.setToken(response.access_token)
       localStorage.setItem('token', response.access_token)
+      localStorage.setItem('user', JSON.stringify(response.user))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
       throw err
@@ -48,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(response.access_token)
       api.setToken(response.access_token)
       localStorage.setItem('token', response.access_token)
+      localStorage.setItem('user', JSON.stringify(response.user))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
       throw err
@@ -61,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPets([])
     api.setToken(null)
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }, [])
 
   const loadPets = useCallback(async () => {
