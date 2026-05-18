@@ -31,56 +31,11 @@ export function RegisterPage() {
       backgroundImage: `radial-gradient(circle at 2px 2px, ${colors.softBorder} 1px, transparent 0)`,
       backgroundSize: '28px 28px',
       padding: '48px 24px',
-      paddingTop: '80px',
       display: 'flex',
       alignItems: 'flex-start',
       justifyContent: 'center',
       overflowY: 'auto',
     }}>
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        padding: '12px 20px',
-        backgroundColor: colors.headerBg,
-        borderBottom: `2px solid ${colors.softBorder}`,
-        boxShadow: '0 4px 20px rgba(155, 143, 194, 0.1)',
-      }}>
-        <div style={{
-          backgroundColor: colors.headerBar,
-          borderRadius: '20px',
-          padding: '10px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            backgroundColor: colors.softWhite,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '16px',
-            border: `2px solid ${colors.softBorder}`,
-          }}>
-            🫧
-          </div>
-          <span style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '14px',
-            fontWeight: 600,
-            color: colors.lavenderDark,
-            marginLeft: '10px',
-          }}>
-            Toigotchi
-          </span>
-          <ThemeToggle style={{ marginLeft: 'auto' }} />
-        </div>
-      </header>
       <div style={{ width: '100%', maxWidth: '360px' }}>
         {/* Kawaii Logo */}
         <div className="animate-fade-slide-in" style={{ marginBottom: '40px', textAlign: 'center' }}>
